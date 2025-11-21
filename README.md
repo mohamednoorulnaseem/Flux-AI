@@ -1,157 +1,144 @@
-# ⚡ Codexa — AI Code Reviewer
+# ⚡ Codexa – AI Code Reviewer 🧠💻
 
-[![Python 3.14](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org/)
+[![Python Version](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green.svg)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-Frontend-blue.svg)](https://react.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
-Codexa is a full‑stack AI code review tool that analyzes source code and returns detected issues, exact line locations, actionable suggestions, a human‑readable summary, and an overall quality score.
+Codexa is a full-stack AI-powered code review system that analyzes source code and automatically generates:
+
+- 🔍 Detected issues (bugs, style, security, performance)
+- 📌 Line numbers for each issue
+- 💡 Suggestions for improvements
+- 🧾 Readable multi-point summary
+- 🏆 Overall quality score (0–100)
+
+Built using FastAPI + Python (backend) & React + TypeScript (frontend), powered by OpenAI Responses API.
 
 ---
 
-## Key features
+## 🚀 Features
 
-- AI-powered static review (bugs, style, security, performance)
-- Per-line feedback with severity and category
-- Suggestions and example fixes
-- Readable summary and quality score (0–100)
-- Web UI for paste/upload and interactive review
-- Configurable and extensible for additional languages
-
----
-
-## Tech stack
-
-Backend
-
-- Python 3.14, FastAPI, Uvicorn
-- OpenAI Responses API
-- python-dotenv
-
-Frontend
-
-- React + TypeScript, Vite
-- Axios for API requests
-- Minimal CSS for theming
+| Feature                  | Description                                |
+| ------------------------ | ------------------------------------------ |
+| 🧠 AI-powered review     | Uses OpenAI to analyze code deeply         |
+| 🐍 Multi-language ready  | Python now; extendable to JS, C++, Java    |
+| 📌 Line-by-line feedback | Shows exact line numbers for issues        |
+| 🔐 Secure config         | `.env` for API key, not shared in Git      |
+| 📊 Code Quality Score    | Ranks maintainability / readability        |
+| 🌐 Modern Web UI         | User-friendly interface for reviewing code |
 
 ---
 
-## Project layout
+## 📁 Project Structure
 
-```text
 codexa-ai-code-reviewer/
+│
 ├── backend/
-│   ├── codexa_backend/
-│   │   ├── __init__.py
-│   │   ├── main.py          # FastAPI app + CORS
-│   │   └── ai_reviewer.py   # OpenAI call + response parsing
-│   ├── .env                 # (ignored) OPENAI_API_KEY
-│   ├── .env.example
-│   └── requirements.txt
+│ ├── codexa_backend/
+│ │ ├── **init**.py
+│ │ ├── main.py (FastAPI endpoints + CORS)
+│ │ └── ai_reviewer.py (OpenAI request + JSON parsing)
+│ │
+│ ├── .env (ignored) OpenAI key
+│ ├── .env.example (env template)
+│ └── requirements.txt (Python dependencies)
+│
 ├── frontend/
-│   ├── src/
-│   │   ├── App.tsx
-│   │   ├── App.css
-│   │   └── ...
-│   ├── vite.config.ts
-│   └── package.json
+│ ├── src/
+│ │ ├── App.tsx (UI logic + API call)
+│ │ ├── App.css (UI styling)
+│ │ └── ...
+│ ├── vite.config.ts (Frontend config)
+│ └── package.json (React dependencies)
+│
 └── README.md
-```
 
 ---
 
-## Installation
+## ⚙️ Installation & Usage
 
-Prerequisites: Python 3.14, Node 18+ or compatible, npm
+### 💻 1️⃣ Backend Setup (FastAPI)
 
-1. Backend
-
-```bash
 cd backend
-python -m venv .venv
-# Activate the venv (Windows)
-.venv\Scripts\activate
-# macOS / Linux
-# source .venv/bin/activate
-
+py -m venv .venv
+.\.venv\Scripts\activate
 pip install -r requirements.txt
 
-# Create backend/.env containing:
-# OPENAI_API_KEY=your_openai_api_key_here
+Create a `.env` file inside backend/ and add:
+OPENAI_API_KEY=your_openai_api_key_here
 
+Run the backend:
 uvicorn codexa_backend.main:app --reload --port 8000
-# API docs: http://127.0.0.1:8000/docs
-```
 
-2. Frontend (run in a separate terminal)
+📌 Open API Docs: http://127.0.0.1:8000/docs
 
-```bash
+---
+
+### 🌐 2️⃣ Frontend Setup (React + TypeScript)
+
+Open a new terminal (do not close backend)
+
 cd frontend
 npm install
 npm run dev
-# Frontend: http://localhost:5173
-```
+
+🌍 Frontend URL: http://localhost:5173
 
 ---
 
-## API
+## 📬 Example API Usage
+
+### 📥 Request
 
 POST /api/review
-Request JSON:
 
-```json
 {
-  "filename": "example.py",
-  "language": "python",
-  "code": "def add(a,b): return a+b"
+"filename": "example.py",
+"language": "python",
+"code": "def add(a,b): return a+b"
 }
-```
 
-Example response:
+### 📤 Example Response
 
-```json
 {
-  "issues": [
-    {
-      "line": 1,
-      "severity": "low",
-      "category": "style",
-      "description": "Function should have spaces after commas and a newline body.",
-      "suggestion": "def add(a, b):\n    return a + b"
-    }
-  ],
-  "summary": "Works but needs formatting for readability.",
-  "score": 90
+"issues": [
+{
+"line": 1,
+"severity": "low",
+"category": "style",
+"description": "Function definition lacks spacing.",
+"suggestion": "Use: def add(a, b): return a + b"
 }
-```
-
-Schema notes:
-
-- issues[].line: 1-based line number
-- severity: low|medium|high
-- category: style|bug|security|performance
+],
+"summary": "Logic works but lacks readability and proper spacing.",
+"score": 90
+}
 
 ---
 
-## Roadmap
+## 🧭 Roadmap
 
 - Multi-language support (JS, C++, Java)
 - Security vulnerability detection
-- Complexity metrics and test generation
-- GitHub PR integration
+- Cyclomatic Complexity metrics
+- Auto-generated test cases
+- GitHub pull-request integration
 
 ---
 
-## Contributing
+## 👨‍💻 Author
 
-Contributions welcome. Please open issues or pull requests. Follow code style and include tests where appropriate.
-
----
-
-## License
-
-MIT — see LICENSE.
+Developed by **Mohamed Noorul Naseem**
+_AI & Backend Engineering Enthusiast_
 
 ---
 
-Developed by Mohamed Noorul Naseem — AI & Backend Engineering
+## 🤝 Contribute
+
+Pull requests are welcome!
+Have an idea? Open an issue or contribute.
+
+---
+
+### ⭐ If you like Codexa, don’t forget to star the repo!
