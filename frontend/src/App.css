@@ -1,0 +1,48 @@
+.app {
+  background-color: #111;
+  min-height: 100vh;
+  color: #fff;
+  padding: 40px;
+  font-family: Arial, sans-serif;
+}
+
+textarea {
+  width: 500px;
+  height: 200px;
+  background: #222;
+  color: #eee;
+  border: solid 2px #444;
+  font-size: 15px;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+button {
+  background: #0057ff;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  margin-top: 10px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.result {
+  margin-top: 30px;
+  background: #222;
+  padding: 20px;
+  border-radius: 6px;
+}
+
+.issue {
+  background: #333;
+  padding: 10px;
+  margin: 10px 0;
+  border-left: 4px solid orange;
+}
