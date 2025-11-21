@@ -1,166 +1,157 @@
-# ⚡ Codexa – AI Code Reviewer 🧠💻
+# ⚡ Codexa — AI Code Reviewer
 
-[![Python Version](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org/)
+[![Python 3.14](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green.svg)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-Frontend-blue.svg)](https://react.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
-Codexa is a full-stack **AI-powered code review system** that analyzes source code and automatically generates:
-
-- 🔍 **Detected issues** (bug / style / security / performance)
-- 📌 **Line numbers indicating problems**
-- 💡 **Suggestions for improvements**
-- 🧾 **Readable descriptive summary**
-- 🏆 **Overall quality score (0–100)**
-
-Built with **FastAPI (Backend)** + **React + TypeScript (Frontend)** using **OpenAI’s latest Responses API**.
+Codexa is a full‑stack AI code review tool that analyzes source code and returns detected issues, exact line locations, actionable suggestions, a human‑readable summary, and an overall quality score.
 
 ---
 
-## 🚀 Features
+## Key features
 
-| Feature                      | Description                                                  |
-| ---------------------------- | ------------------------------------------------------------ |
-| 🧠 AI-powered review         | Uses OpenAI to analyze uploaded source code                  |
-| 🐍 Multi-language capable    | Currently supports Python; easily extendable to JS, C++, etc |
-| 📌 Precise line feedback     | Shows exact lines where issues occur                         |
-| 🔐 Secure environment config | `.env` for secret keys (ignored by Git)                      |
-| 📊 Quality Score             | Calculates maintainability and readability score             |
-| 🌐 Web UI                    | User-friendly interface to paste and review code             |
+- AI-powered static review (bugs, style, security, performance)
+- Per-line feedback with severity and category
+- Suggestions and example fixes
+- Readable summary and quality score (0–100)
+- Web UI for paste/upload and interactive review
+- Configurable and extensible for additional languages
 
 ---
 
-## 🛠️ Tech Stack
+## Tech stack
 
-### 🔧 Backend
+Backend
 
-- Python **3.14**
-- FastAPI
-- Uvicorn
+- Python 3.14, FastAPI, Uvicorn
 - OpenAI Responses API
-- Dotenv
+- python-dotenv
 
-### 🎨 Frontend
+Frontend
 
-- React + TypeScript
-- Vite + Rollup
-- Axios
-- CSS
+- React + TypeScript, Vite
+- Axios for API requests
+- Minimal CSS for theming
 
 ---
 
-## 📁 Project Structure
+## Project layout
 
 ```text
 codexa-ai-code-reviewer/
-│
 ├── backend/
 │   ├── codexa_backend/
 │   │   ├── __init__.py
-│   │   ├── main.py          # FastAPI API + CORS
-│   │   └── ai_reviewer.py   # Calls OpenAI + parses JSON response
-│   │
-│   ├── .env                 # (ignored) contains OPENAI_API_KEY
-│   ├── .env.example         # Template for environment variables
-│   └── requirements.txt     # Backend dependencies
-│
+│   │   ├── main.py          # FastAPI app + CORS
+│   │   └── ai_reviewer.py   # OpenAI call + response parsing
+│   ├── .env                 # (ignored) OPENAI_API_KEY
+│   ├── .env.example
+│   └── requirements.txt
 ├── frontend/
 │   ├── src/
-│   │   ├── App.tsx          # UI logic + API call
-│   │   ├── App.css          # UI theme (dark)
+│   │   ├── App.tsx
+│   │   ├── App.css
 │   │   └── ...
-│   ├── vite.config.ts       # Frontend config
+│   ├── vite.config.ts
 │   └── package.json
-│
 └── README.md
-
-## ⚙️ Installation & Usage
-
-### 💻 1️⃣ Backend Setup (FastAPI)
-
-cd backend
-py -m venv .venv
-.\.venv\Scripts\activate
-pip install -r requirements.txt
-
-📌 Create a `.env` file inside `backend/` and add:
-
-OPENAI_API_KEY=your_openai_api_key_here
-
-▶️ Run the backend server:
-
-uvicorn codexa_backend.main:app --reload --port 8000
-
-📌 Open API Docs:
-http://127.0.0.1:8000/docs
+```
 
 ---
 
-### 🌐 2️⃣ Frontend Setup (React + TypeScript)
+## Installation
 
-Open a **new terminal** (do NOT close backend)
+Prerequisites: Python 3.14, Node 18+ or compatible, npm
 
+1. Backend
+
+```bash
+cd backend
+python -m venv .venv
+# Activate the venv (Windows)
+.venv\Scripts\activate
+# macOS / Linux
+# source .venv/bin/activate
+
+pip install -r requirements.txt
+
+# Create backend/.env containing:
+# OPENAI_API_KEY=your_openai_api_key_here
+
+uvicorn codexa_backend.main:app --reload --port 8000
+# API docs: http://127.0.0.1:8000/docs
+```
+
+2. Frontend (run in a separate terminal)
+
+```bash
 cd frontend
 npm install
 npm run dev
-
-🌍 Frontend URL:
-http://localhost:5173
+# Frontend: http://localhost:5173
+```
 
 ---
 
-## 📬 Example API Usage
+## API
 
-### 📥 Request
 POST /api/review
+Request JSON:
 
+```json
 {
   "filename": "example.py",
   "language": "python",
   "code": "def add(a,b): return a+b"
 }
+```
 
-### 📤 Example Response
+Example response:
 
+```json
 {
   "issues": [
     {
       "line": 1,
       "severity": "low",
       "category": "style",
-      "description": "Function definition should have spaces after commas...",
-      "suggestion": "Rewrite as: def add(a, b):\\n    return a + b"
+      "description": "Function should have spaces after commas and a newline body.",
+      "suggestion": "def add(a, b):\n    return a + b"
     }
   ],
-  "summary": "Function works correctly but lacks readability due to inline formatting.",
+  "summary": "Works but needs formatting for readability.",
   "score": 90
 }
+```
+
+Schema notes:
+
+- issues[].line: 1-based line number
+- severity: low|medium|high
+- category: style|bug|security|performance
 
 ---
 
-## 🧭 Roadmap
+## Roadmap
 
 - Multi-language support (JS, C++, Java)
-- Security vulnerability scanning
-- Cyclomatic complexity metrics
-- Auto-generated test cases
-- GitHub pull-request integration
+- Security vulnerability detection
+- Complexity metrics and test generation
+- GitHub PR integration
 
 ---
 
-## 👨‍💻 Author
+## Contributing
 
-Developed by **Mohamed Noorul Naseem**
-_AI & Backend Engineering Enthusiast_
-
----
-
-## 🤝 Contribute
-
-Pull requests are welcome!
-Have ideas? Open an issue or contribute.
+Contributions welcome. Please open issues or pull requests. Follow code style and include tests where appropriate.
 
 ---
 
-### ⭐ If you like Codexa, don’t forget to **star the repo!**
-```
+## License
+
+MIT — see LICENSE.
+
+---
+
+Developed by Mohamed Noorul Naseem — AI & Backend Engineering
