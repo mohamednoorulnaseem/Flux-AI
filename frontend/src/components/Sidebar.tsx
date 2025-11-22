@@ -1,7 +1,6 @@
-// src/components/Sidebar.tsx
+// frontend/src/components/Sidebar.tsx
 import React from "react";
 import CodexaLogo from "../assets/codexa-logo.svg";
-import "./Sidebar.css"; // optional if you want separate CSS
 
 type SidebarProps = {
   activeTab: "review" | "history" | "settings";
@@ -11,49 +10,46 @@ type SidebarProps = {
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, onChangeTab }) => {
   return (
     <aside className="sidebar">
-      <div className="sidebar-logo-block">
-        <div className="sidebar-logo-circle">
-          <img src={CodexaLogo} alt="Codexa logo" className="sidebar-logo" />
+      {/* Logo block */}
+      <div className="sidebar-logo">
+        <div className="logo-icon">
+          <img src={CodexaLogo} alt="Codexa logo" className="logo-img" />
         </div>
-        <div className="sidebar-text">
-          <h1 className="sidebar-title">Codexa</h1>
-          <p className="sidebar-subtitle">AI Code Reviewer</p>
+        <div className="logo-text">
+          <span>Codexa</span>
+          <small>AI Code Reviewer</small>
         </div>
       </div>
 
+      {/* Nav */}
       <nav className="sidebar-nav">
         <button
-          className={`sidebar-nav-item ${
-            activeTab === "review" ? "active" : ""
-          }`}
+          className={`nav-item ${activeTab === "review" ? "active" : ""}`}
           onClick={() => onChangeTab("review")}
         >
-          <span>⚡ Review</span>
+          ⚡ Review
         </button>
 
         <button
-          className={`sidebar-nav-item ${
-            activeTab === "history" ? "active" : ""
-          }`}
+          className={`nav-item ${activeTab === "history" ? "active" : ""}`}
           onClick={() => onChangeTab("history")}
         >
-          <span>📜 History</span>
+          📜 History
         </button>
 
         <button
-          className={`sidebar-nav-item ${
-            activeTab === "settings" ? "active" : ""
-          }`}
+          className={`nav-item ${activeTab === "settings" ? "active" : ""}`}
           onClick={() => onChangeTab("settings")}
         >
-          <span>⚙️ Settings</span>
+          ⚙️ Settings
         </button>
       </nav>
 
+      {/* Footer */}
       <div className="sidebar-footer">
-        <span className="sidebar-status-dot" />
-        <span className="sidebar-status-text">
-          Backend: <span className="sidebar-status-value">local</span>
+        <span className="status-dot" />
+        <span className="status-text">
+          Backend: <span>local</span>
         </span>
       </div>
     </aside>

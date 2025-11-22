@@ -557,3 +557,37 @@ body {
     justify-content: flex-start;
   }
 }
+/* === Monaco issue highlighting for Codexa === */
+
+.codexa-issue-line {
+  background: linear-gradient(
+    90deg,
+    rgba(248, 113, 113, 0.06),
+    rgba(59, 130, 246, 0.03)
+  ) !important;
+}
+
+.codexa-issue-critical {
+  box-shadow: inset 3px 0 0 #ef4444;
+}
+
+.codexa-issue-high {
+  box-shadow: inset 3px 0 0 #f97316;
+}
+
+.codexa-issue-medium {
+  box-shadow: inset 3px 0 0 #eab308;
+}
+
+.codexa-issue-low {
+  box-shadow: inset 3px 0 0 #22c55e;
+}
+
+.codexa-issue-glyph {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  margin-left: 2px;
+  background: radial-gradient(circle, #fb7185, #f97316);
+  box-shadow: 0 0 6px rgba(248, 113, 113, 0.9);
+}

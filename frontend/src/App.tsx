@@ -1,10 +1,9 @@
+// frontend/src/App.tsx
 import { useState } from "react";
 import axios from "axios";
 import "./App.css";
-
 import CodeEditor from "./components/CodeEditor";
 import IssueList from "./components/IssueList";
-import CodexaLogo from "./assets/codexa-logo.svg";
 
 type Issue = {
   line: number;
@@ -34,9 +33,9 @@ function App() {
       setError("Please enter some code to review.");
       return;
     }
+
     setLoading(true);
     setError("");
-
     try {
       const response = await axios.post<ReviewResult>(
         "http://127.0.0.1:8000/api/review",
@@ -49,7 +48,9 @@ function App() {
       setResult(response.data);
     } catch (err) {
       console.error(err);
-      setError("⚠️ Cannot reach backend. Is FastAPI running?");
+      setError(
+        "Failed to reach backend. Is FastAPI running on 127.0.0.1:8000?"
+      );
     } finally {
       setLoading(false);
     }
@@ -59,11 +60,11 @@ function App() {
 
   return (
     <div className="app-shell">
-      {/* =============== SIDEBAR =============== */}
+      {/* SIDEBAR */}
       <aside className="sidebar">
         <div className="sidebar-logo">
           <div className="logo-icon">
-            <img src={CodexaLogo} alt="Codexa Logo" className="logo-img" />
+            <span>CX</span>
           </div>
           <div className="logo-text">
             <span>Codexa</span>
@@ -72,20 +73,28 @@ function App() {
         </div>
 
         <nav className="sidebar-nav">
-          <button className="nav-item active">🧪 Review</button>
-          <button className="nav-item disabled">📊 History</button>
-          <button className="nav-item disabled">⚙️ Settings</button>
+          <button className="nav-item active">
+            <span>⚡ Review</span>
+          </button>
+          <button className="nav-item disabled">
+            <span>📜 History</span>
+          </button>
+          <button className="nav-item disabled">
+            <span>⚙️ Settings</span>
+          </button>
         </nav>
 
         <div className="sidebar-footer">
-          <span className="status-dot" /> Backend:{" "}
-          <span className="status-text">local</span>
+          <span className="status-dot" />
+          <span className="status-text">
+            Backend: <span>local</span>
+          </span>
         </div>
       </aside>
 
-      {/* =============== MAIN =============== */}
+      {/* MAIN AREA */}
       <div className="main-area">
-        {/* Top Bar */}
+        {/* TOP BAR */}
         <header className="topbar">
           <div className="topbar-left">
             <h1>AI Review Workspace</h1>
@@ -93,7 +102,6 @@ function App() {
               Paste your code, choose a language, and let Codexa analyze it.
             </p>
           </div>
-
           <div className="topbar-right">
             <input
               className="input-pill"
@@ -101,7 +109,6 @@ function App() {
               onChange={(e) => setFilename(e.target.value)}
               placeholder="Filename (example.py)"
             />
-
             <select
               className="input-pill"
               value={language}
@@ -113,20 +120,19 @@ function App() {
               <option value="java">Java</option>
               <option value="cpp">C++</option>
             </select>
-
             <button
               className="primary-btn"
               onClick={handleReview}
               disabled={loading}
             >
-              {loading ? "⏳ Reviewing..." : "🚀 Run Review"}
+              {loading ? "Reviewing..." : "🚀 Run Review"}
             </button>
           </div>
         </header>
 
-        {/* Grid Content */}
+        {/* CONTENT GRID */}
         <main className="content-grid">
-          {/* Editor */}
+          {/* LEFT: Editor */}
           <section className="pane pane-editor">
             <div className="pane-header">
               <span className="pane-title">Source Code</span>
@@ -137,11 +143,10 @@ function App() {
             <CodeEditor code={code} language={language} onChange={setCode} />
           </section>
 
-          {/* Results Section */}
+          {/* RIGHT: Result */}
           <section className="pane pane-result">
             {error && <div className="alert error">{error}</div>}
 
-            {/* Score Summary */}
             <div className="cards-row">
               <div className="card metric-card">
                 <span className="metric-label">Score</span>
@@ -149,7 +154,7 @@ function App() {
                   {result ? `${result.score}/100` : "--"}
                 </span>
                 <span className="metric-hint">
-                  Higher is better (readability & quality)
+                  Higher is better (readability &amp; quality)
                 </span>
               </div>
 
@@ -157,12 +162,11 @@ function App() {
                 <span className="metric-label">Issues</span>
                 <span className="metric-value">{issueCount}</span>
                 <span className="metric-hint">
-                  Grouped by severity & category
+                  Grouped by severity &amp; category
                 </span>
               </div>
             </div>
 
-            {/* Summary */}
             <div className="card summary-card">
               <div className="summary-header">
                 <span className="summary-title">AI Summary</span>
@@ -175,7 +179,6 @@ function App() {
               </p>
             </div>
 
-            {/* Issue List */}
             <div className="card issues-card">
               <div className="issues-header">
                 <span className="issues-title">Issue Breakdown</span>
