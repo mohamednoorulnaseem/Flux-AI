@@ -60,7 +60,7 @@ codexa-ai-code-reviewer/
 
 ## ⚙️ Installation & Usage
 
-### 💻 1️⃣ Backend Setup (FastAPI)
+### 💻 Backend Setup (FastAPI)
 
 ```
 cd backend
@@ -75,19 +75,19 @@ Create a `.env` file inside `backend/` and add:
 OPENAI_API_KEY=your_openai_api_key_here
 ```
 
-▶️ Run the backend:
+Run backend:
 
 ```
 uvicorn codexa_backend.main:app --reload --port 8000
 ```
 
-📌 Open docs: http://127.0.0.1:8000/docs
+Docs: http://127.0.0.1:8000/docs
 
 ---
 
-### 🌐 2️⃣ Frontend Setup (React + TypeScript)
+### 🌐 Frontend Setup (React + TypeScript)
 
-Open a **new terminal** (keep backend running):
+Open a new terminal (keep backend running):
 
 ```
 cd frontend
@@ -95,15 +95,15 @@ npm install
 npm run dev
 ```
 
-🌍 Access UI: http://localhost:5173
+Open UI in browser: http://localhost:5173
 
 ---
 
-## 📬 Example API Usage
+## 📬 Example – API Usage
 
-### 📥 Request: `POST /api/review`
+📥 POST `/api/review`
 
-```
+```json
 {
   "filename": "example.py",
   "language": "python",
@@ -111,9 +111,9 @@ npm run dev
 }
 ```
 
-### 📤 Example Response
+📤 Example Response
 
-```
+```json
 {
   "issues": [
     {
@@ -136,23 +136,21 @@ npm run dev
 - 🔧 Multi-language support (JS, C++, Java)
 - 🛡️ Security vulnerability detection
 - 🎯 Cyclomatic complexity metrics
-- 🧪 Auto-generated test cases
+- 🧪 Auto-generated unit tests
 - 🔌 GitHub PR integration
 
 ---
 
 ## 👨‍💻 Author
 
-Developed by **Mohamed Noorul Naseem**  
+👤 **Mohamed Noorul Naseem**  
 _AI & Backend Engineering Enthusiast_
 
 ---
 
-## 🤝 Contribute
+## 🤝 Contributing
 
-Pull requests are welcome!  
-Have ideas? Open an issue or contribute.
+Pull requests and suggestions are welcome!  
+📌 Follow best practices & provide clear PR description.
 
----
-
-### ⭐ If you like Codexa, don’t forget to star the repo!
+⭐ **If you like Codexa, please star the repo!**
