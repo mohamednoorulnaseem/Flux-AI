@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <defs>
+    <linearGradient id="flux-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8B5CF6"/>
+      <stop offset="50%" stop-color="#6366F1"/>
+      <stop offset="100%" stop-color="#06B6D4"/>
+    </linearGradient>
+    <linearGradient id="flux-bolt" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#E0E7FF"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="1.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <!-- Rounded square background -->
+  <rect x="2" y="2" width="44" height="44" rx="12" fill="url(#flux-grad)"/>
+  <!-- Subtle inner glow ring -->
+  <rect x="4" y="4" width="40" height="40" rx="10" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+  <!-- Lightning bolt / Flux symbol -->
+  <path d="M28.5 8L16 25.5H23L19.5 40L32 22.5H25L28.5 8Z" fill="url(#flux-bolt)" filter="url(#glow)"/>
+  <!-- Small energy dots -->
+  <circle cx="12" cy="14" r="1.5" fill="rgba(255,255,255,0.35)"/>
+  <circle cx="36" cy="34" r="1.5" fill="rgba(255,255,255,0.35)"/>
+  <circle cx="10" cy="36" r="1" fill="rgba(255,255,255,0.2)"/>
+  <circle cx="38" cy="12" r="1" fill="rgba(255,255,255,0.2)"/>
+</svg>

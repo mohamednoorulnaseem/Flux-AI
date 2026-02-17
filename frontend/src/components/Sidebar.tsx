@@ -1,6 +1,6 @@
 // frontend/src/components/Sidebar.tsx
 import React from "react";
-import CodexaLogo from "../assets/codexa-logo.svg";
+import FluxLogo from "../assets/flux-logo.svg";
 
 type SidebarProps = {
   activeTab: "review" | "history" | "settings";
@@ -13,10 +13,10 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onChangeTab }) => {
       {/* Logo block */}
       <div className="sidebar-logo">
         <div className="logo-icon">
-          <img src={CodexaLogo} alt="Codexa logo" className="logo-img" />
+          <img src={FluxLogo} alt="Flux logo" className="logo-img" />
         </div>
         <div className="logo-text">
-          <span>Codexa</span>
+          <span>Flux</span>
           <small>AI Code Reviewer</small>
         </div>
       </div>

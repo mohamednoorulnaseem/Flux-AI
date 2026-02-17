@@ -86,7 +86,7 @@ body {
   height: 80%;
   object-fit: contain;
   filter: drop-shadow(0 0 6px rgba(15, 23, 42, 0.9));
-  animation: codexa-glow 4s ease-in-out infinite alternate;
+  animation: Flux-glow 4s ease-in-out infinite alternate;
 }
 
 .logo-text span {
@@ -497,7 +497,7 @@ body {
    Animations
    ========================= */
 
-@keyframes codexa-glow {
+@keyframes Flux-glow {
   0% {
     box-shadow: 0 0 10px rgba(168, 85, 247, 0.8),
       0 0 20px rgba(34, 211, 238, 0.5);
@@ -557,9 +557,9 @@ body {
     justify-content: flex-start;
   }
 }
-/* === Monaco issue highlighting for Codexa === */
+/* === Monaco issue highlighting for Flux === */
 
-.codexa-issue-line {
+.Flux-issue-line {
   background: linear-gradient(
     90deg,
     rgba(248, 113, 113, 0.06),
@@ -567,23 +567,23 @@ body {
   ) !important;
 }
 
-.codexa-issue-critical {
+.Flux-issue-critical {
   box-shadow: inset 3px 0 0 #ef4444;
 }
 
-.codexa-issue-high {
+.Flux-issue-high {
   box-shadow: inset 3px 0 0 #f97316;
 }
 
-.codexa-issue-medium {
+.Flux-issue-medium {
   box-shadow: inset 3px 0 0 #eab308;
 }
 
-.codexa-issue-low {
+.Flux-issue-low {
   box-shadow: inset 3px 0 0 #22c55e;
 }
 
-.codexa-issue-glyph {
+.Flux-issue-glyph {
   width: 8px;
   height: 8px;
   border-radius: 999px;

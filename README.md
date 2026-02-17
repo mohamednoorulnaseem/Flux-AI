@@ -1,143 +1,112 @@
-# ⚡ Codexa – AI Code Reviewer 🧠💻
+# ⚡ Flux – Premium AI Code Reviewer 🧠💻
 
 [![Python Version](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green.svg)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-Frontend-blue.svg)](https://react.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
-Codexa is a full-stack AI-powered code review system that analyzes source code and automatically generates:
-
-- 🔍 Detected issues (bugs, style, security, performance)
-- 📌 Exact line numbers
-- 💡 Actionable improvement suggestions
-- 🧾 Detailed summary
-- 🏆 Quality score (0–100)
-
-Built using **FastAPI + Python (backend)** & **React + TypeScript (frontend)**, powered by **OpenAI Responses API**.
+Flux is a state-of-the-art, multi-agent AI code review platform. It goes beyond simple linting by deploying a pipeline of specialized agents (Security, Performance, Style, Bug Hunter, and Auto-Fix) to provide deep, context-aware analysis of your code.
 
 ---
 
-## 🚀 Features
+## ✨ Key Features
 
-| Feature                  | Description                         |
-| ------------------------ | ----------------------------------- |
-| 🧠 AI-powered analysis   | Understands code and finds problems |
-| 🐍 Multi-language ready  | Extendable to JS, C++, Java         |
-| 📌 Line-by-line feedback | Highlights exact issue locations    |
-| 🔐 Secure key handling   | `.env` protection (not in Git)      |
-| 📊 Quality scoring       | Calculates maintainability          |
-| 🌐 Modern UI             | Easy pasting and reviewing of code  |
+- **🚀 Multi-Agent Orchestration**: 5 specialized AI agents work in parallel to audit your code.
+- **📡 Real-time Streaming**: Watch the agents work in real-time via Server-Sent Events (SSE).
+- **🛡️ Deep Security Audit**: Detects SQL injection, XSS, SSRF, and 50+ vulnerability patterns.
+- **⚡ Performance Profiling**: Identifies algorithmic bottlenecks (O(n²)), memory leaks, and N+1 queries.
+- **🔧 Auto-Fix Generation**: One-click production-ready fixes with visual diffs.
+- **📊 Letter Grade System**: Instant quality assessment from A+ to F based on weighted metrics.
+- **🎨 Premium UI/UX**: Dark mode, glassmorphism, animated metrics, and integrated Monaco Editor.
+- **📈 Analytics Dashboard**: Track code quality trends, scores, and issue patterns over time.
 
 ---
 
 ## 📁 Project Structure
 
 ```
-codexa-ai-code-reviewer/
+Flux AI/
 │
 ├── backend/
-│   ├── codexa_backend/
-│   │   ├── __init__.py
-│   │   ├── main.py          (FastAPI endpoints + CORS)
-│   │   └── ai_reviewer.py   (OpenAI request + JSON parsing)
+│   ├── flux_backend/
+│   │   ├── main.py          (API endpoints + SSE streaming)
+│   │   ├── orchestrator.py  (Multi-agent pipeline coordinator)
+│   │   ├── agents.py        (Specialized AI agent definitions)
+│   │   ├── database.py      (SQLite persistence)
+│   │   └── auth.py          (JWT-based authentication)
 │   │
-│   ├── .env                 (ignored) OPENAI API key
+│   ├── .env                 (ignored) OPENAI API key + Config
 │   ├── .env.example         (env template)
 │   └── requirements.txt     (Python dependencies)
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── App.tsx          (UI + API call)
-│   │   ├── App.css          (UI styling)
-│   │   └── ...
-│   ├── vite.config.ts       (Vite config)
-│   └── package.json         (React dependencies)
+│   │   ├── pages/           (Landing, Review, Dashboard, etc.)
+│   │   ├── services/api.ts  (Streaming SSE client + API calls)
+│   │   ├── context/         (Auth & State management)
+│   │   └── assets/          (Brand assets & icons)
+│   │
+│   ├── index.html           (SEO & Entry point)
+│   ├── package.json         (React dependencies)
+│   └── vite.config.ts       (Build configuration)
 │
 └── README.md
 ```
 
 ---
 
-## ⚙️ Installation & Usage
+## ⚙️ Quick Start
 
-### 💻 Backend Setup (FastAPI)
+### 💻 Backend Setup
 
-```
-cd backend
-py -m venv .venv
-.\.venv\Scripts\activate
-pip install -r requirements.txt
-```
+1. **Navigate and Environment**:
 
-Create a `.env` file inside `backend/` and add:
+   ```bash
+   cd backend
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .\.venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
 
-```
-OPENAI_API_KEY=your_openai_api_key_here
-```
+2. **Configure Environment Variables**:
+   Create a `.env` file in `backend/`:
 
-Run backend:
+   ```env
+   OPENAI_API_KEY=sk-your-key-here
+   DATABASE_URL=sqlite:///./flux.db
+   SECRET_KEY=your-secret-key
+   ```
 
-```
-uvicorn codexa_backend.main:app --reload --port 8000
-```
-
-Docs: http://127.0.0.1:8000/docs
-
----
-
-### 🌐 Frontend Setup (React + TypeScript)
-
-Open a new terminal (keep backend running):
-
-```
-cd frontend
-npm install
-npm run dev
-```
-
-Open UI in browser: http://localhost:5173
+3. **Run Server**:
+   ```bash
+   python -m uvicorn flux_backend.main:app --reload --port 8000
+   ```
 
 ---
 
-## 📬 Example – API Usage
+### 🌐 Frontend Setup
 
-📥 POST `/api/review`
+1. **Install and Run**:
 
-```json
-{
-  "filename": "example.py",
-  "language": "python",
-  "code": "def add(a,b): return a+b"
-}
-```
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
 
-📤 Example Response
-
-```json
-{
-  "issues": [
-    {
-      "line": 1,
-      "severity": "low",
-      "category": "style",
-      "description": "Function definition lacks spacing.",
-      "suggestion": "Use: def add(a, b): return a + b"
-    }
-  ],
-  "summary": "Logic works but lacks readability due to spacing.",
-  "score": 90
-}
-```
+2. **Access the App**: [http://localhost:5173](http://localhost:5173)
 
 ---
 
-## 🧭 Roadmap
+## 🧠 The Agentic Pipeline
 
-- 🔧 Multi-language support (JS, C++, Java)
-- 🛡️ Security vulnerability detection
-- 🎯 Cyclomatic complexity metrics
-- 🧪 Auto-generated unit tests
-- 🔌 GitHub PR integration
+Flux uses a proprietary orchestrator that manages:
+
+1. **Security Agent**: Audits for OWASP Top 10 and common pitfalls.
+2. **Performance Agent**: Evaluates time/space complexity and resource usage.
+3. **Style Agent**: Enforces standards, naming conventions, and DRY principles.
+4. **Bug Detector**: Logic hunter focus on edge cases and race conditions.
+5. **Auto-Fix Agent**: Merges all findings into a corrected version of the code.
 
 ---
 
@@ -150,7 +119,6 @@ _AI & Backend Engineering Enthusiast_
 
 ## 🤝 Contributing
 
-Pull requests and suggestions are welcome!  
-📌 Follow best practices & provide clear PR description.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-⭐ **If you like Codexa, please star the repo!**
+⭐ **If you like Flux, please star the repo!**
