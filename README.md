@@ -1,4 +1,4 @@
-# ⚡ Flux – Premium AI Code Reviewer 🧠💻
+# ⚡ Flux – AI Code Reviewer 🧠💻
 
 [![Python Version](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green.svg)](https://fastapi.tiangolo.com/)
@@ -17,7 +17,7 @@ Flux is a state-of-the-art, multi-agent AI code review platform. It goes beyond 
 - **⚡ Performance Profiling**: Identifies algorithmic bottlenecks (O(n²)), memory leaks, and N+1 queries.
 - **🔧 Auto-Fix Generation**: One-click production-ready fixes with visual diffs.
 - **📊 Letter Grade System**: Instant quality assessment from A+ to F based on weighted metrics.
-- **🎨 Premium UI/UX**: Dark mode, glassmorphism, animated metrics, and integrated Monaco Editor.
+- **🎨 High-End UI/UX**: Dark mode, glassmorphism, animated metrics, and integrated Monaco Editor.
 - **📈 Analytics Dashboard**: Track code quality trends, scores, and issue patterns over time.
 
 ---
