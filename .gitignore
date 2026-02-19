@@ -1,0 +1,71 @@
+# Flux AI – Root .gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment files
+.env
+*.env.local
+
+# ── Model weights & checkpoints (large files) ─────────────────────────────────
+models/
+*.bin
+*.safetensors
+*.gguf
+*.pt
+*.pth
+
+# ── Training artifacts ────────────────────────────────────────────────────────
+training/runs/
+training/checkpoints/
+training/outputs/
+
+# ── Datasets (generate locally) ───────────────────────────────────────────────
+data/dataset.jsonl
+data/dataset_v*.jsonl
+
+# ── Database ──────────────────────────────────────────────────────────────────
+*.db
+flux.db
+
+# ── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.next/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Coverage
+.coverage
+htmlcov/

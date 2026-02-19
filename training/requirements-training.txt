@@ -1,0 +1,28 @@
+# Flux AI – Training Dependencies
+# Install BEFORE running training/qlora_train.py
+#
+# CUDA setup first:
+#   pip install torch --index-url https://download.pytorch.org/whl/cu121
+#
+# Then install this file:
+#   pip install -r training/requirements-training.txt
+
+# Core AI
+torch>=2.1.0
+transformers>=4.40.0
+peft>=0.10.0
+trl>=0.8.0
+accelerate>=0.28.0
+bitsandbytes>=0.43.0
+
+# Dataset
+datasets>=2.18.0
+
+# Utilities
+sentencepiece>=0.2.0
+protobuf>=4.25.0
+scipy>=1.12.0
+einops>=0.7.0
+
+# Optional: monitor training
+# tensorboard>=2.16.0

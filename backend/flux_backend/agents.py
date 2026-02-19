@@ -12,51 +12,180 @@ import os
 import json
 import re
 import time
+import logging
+from pathlib import Path
 from typing import Any
-from openai import OpenAI
 from dotenv import load_dotenv
 
-load_dotenv()
+# Load .env from project root (two levels up from this file: backend/flux_backend/ → project root)
+_env_path = Path(__file__).resolve().parent.parent.parent / ".env"
+load_dotenv(dotenv_path=_env_path, override=True)
 
 AI_MODEL = os.getenv("AI_MODEL", "gpt-4.1-mini")
 
-# Lazy-init client — don't crash at import if no API key
-_client = None
+logger = logging.getLogger(__name__)
 
 
-def _get_client() -> OpenAI:
+def _use_local_model() -> bool:
+    """Read USE_LOCAL_MODEL at call time so .env changes take effect after restart."""
+    return os.getenv("USE_LOCAL_MODEL", "false").lower() == "true"
+
+# ── OpenAI client (lazy-init) ────────────────────────────────────────────────
+_openai_client = None
+
+
+def _get_openai_client():
     """Get or create the OpenAI client (lazy init)."""
-    global _client
-    if _client is None:
+    global _openai_client
+    if _openai_client is None:
+        from openai import OpenAI
         api_key = os.getenv("OPENAI_API_KEY", "")
         if not api_key:
             raise RuntimeError(
                 "OPENAI_API_KEY is not set. "
-                "Create a .env file in the backend directory with: OPENAI_API_KEY=sk-..."
+                "Set it in a .env file or use the local model (USE_LOCAL_MODEL=true)."
             )
-        _client = OpenAI(api_key=api_key)
-    return _client
+        _openai_client = OpenAI(api_key=api_key)
+    return _openai_client
 
 
 def _call_openai(system_prompt: str, user_prompt: str) -> str:
-    """Shared helper to call OpenAI and extract text."""
+    """Call OpenAI API and return raw text response."""
     try:
-        client = _get_client()
-        response = client.responses.create(
+        client = _get_openai_client()
+        response = client.chat.completions.create(
             model=AI_MODEL,
-            input=[
+            messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ]
         )
-        text = response.output_text
-
+        text = response.choices[0].message.content or ""
         fence_match = re.search(r"```(?:json)?\s*(.*?)```", text, re.DOTALL)
         if fence_match:
             text = fence_match.group(1).strip()
         return text
     except Exception as e:
+        logger.error(f"OpenAI call failed: {e}")
         return json.dumps({"error": str(e)})
+
+
+def _str_to_issues(text: str, fix_key: str = "fix") -> list:
+    """Convert a freeform string from the local model into a list of issue dicts."""
+    if not text or text.strip().lower() in ("none", "none detected.", "none detected", "n/a", ""):
+        return []
+    # Already a list
+    if isinstance(text, list):
+        return text
+    # Split on sentence boundaries / severity keywords to get individual issues
+    parts = re.split(r"\.\s+(?=[A-Z])|(?<=\.)\s+(?=CRITICAL|HIGH|MEDIUM|LOW|WARNING)", text)
+    issues = []
+    for part in parts:
+        part = part.strip().rstrip(".")
+        if not part:
+            continue
+        sev = "medium"
+        for s in ("critical", "high", "medium", "low"):
+            if s in part.lower():
+                sev = s
+                break
+        issues.append({"line": 0, "severity": sev, "description": part, fix_key: "See description"})
+    return issues
+
+
+def _call_local(system_prompt: str, user_prompt: str) -> str:
+    """
+    Call the local fine-tuned model.
+    The model outputs its natural review format: {bugs, improvements, performance, security, score}.
+    We detect which agent is calling and remap the output to the expected schema.
+    """
+    try:
+        from .local_llm import LocalLLM
+        llm = LocalLLM.get_instance()
+
+        # Extract just the code from the user_prompt (between ``` fences)
+        code_match = re.search(r"```[a-z]*\n(.*?)```", user_prompt, re.DOTALL)
+        code = code_match.group(1).strip() if code_match else user_prompt
+
+        instruction = (
+            "Review this code. Identify bugs, security vulnerabilities, performance issues, "
+            "and style problems. Return a JSON object with keys: "
+            "bugs (list of {line, description, severity, fix}), "
+            "security (list of {line, type, severity, description, fix}), "
+            "performance (list of {line, description, severity, optimization}), "
+            "style (list of {line, description, severity, suggestion}), "
+            "score (0-100 integer, higher is better)."
+        )
+        raw = llm.generate(instruction=instruction, code=code, max_new_tokens=768)
+
+        fence_match = re.search(r"```(?:json)?\s*(.*?)```", raw, re.DOTALL)
+        if fence_match:
+            raw = fence_match.group(1).strip()
+
+        parsed = json.loads(raw)
+
+        # Detect which agent is calling based on the system_prompt keyword
+        sp = system_prompt.lower()
+        if "security" in sp or "vulnerabilit" in sp:
+            items = _str_to_issues(parsed.get("security", []), "fix")
+            return json.dumps({
+                "vulnerabilities": [{"line": v.get("line", 0), "severity": v.get("severity", "medium"),
+                    "type": v.get("type", "vulnerability"), "cwe": "", "description": v.get("description", ""),
+                    "impact": "", "fix": v.get("fix", "")} for v in items],
+                "security_score": max(0, 100 - len(items) * 15),
+                "risk_level": "high" if items else "none",
+                "summary": f"Found {len(items)} security issue(s)." if items else "No security issues found."
+            })
+        elif "performance" in sp or "bottleneck" in sp or "complexity" in sp:
+            items = _str_to_issues(parsed.get("performance", []), "optimization")
+            return json.dumps({
+                "issues": [{"line": v.get("line", 0), "severity": v.get("severity", "medium"),
+                    "type": "performance", "description": v.get("description", ""),
+                    "optimization": v.get("optimization", ""), "estimated_improvement": ""} for v in items],
+                "performance_score": max(0, 100 - len(items) * 15),
+                "overall_complexity": "O(n)",
+                "summary": f"Found {len(items)} performance issue(s)." if items else "No performance issues."
+            })
+        elif "style" in sp or "maintainab" in sp or "naming" in sp:
+            items = _str_to_issues(parsed.get("style", []), "suggestion")
+            return json.dumps({
+                "issues": [{"line": v.get("line", 0), "severity": v.get("severity", "low"),
+                    "category": "style", "description": v.get("description", ""),
+                    "suggestion": v.get("suggestion", ""), "standard": ""} for v in items],
+                "style_score": max(0, 100 - len(items) * 10),
+                "maintainability_index": "medium",
+                "summary": f"Found {len(items)} style issue(s)." if items else "No style issues."
+            })
+        elif "bug" in sp or "logic" in sp or "reliability" in sp:
+            items = _str_to_issues(parsed.get("bugs", []), "fix")
+            return json.dumps({
+                "bugs": [{"line": v.get("line", 0), "severity": v.get("severity", "high"),
+                    "type": v.get("type", "logic error"), "description": v.get("description", ""),
+                    "impact": "", "fix": v.get("fix", ""), "test_case": ""} for v in items],
+                "reliability_score": max(0, 100 - len(items) * 20),
+                "confidence": "medium",
+                "summary": f"Found {len(items)} bug(s)." if items else "No bugs found."
+            })
+        else:
+            # AutoFix agent
+            score = parsed.get("score", 50)
+            all_issues = (list(parsed.get("bugs", [])) + list(parsed.get("security", [])) +
+                          list(parsed.get("performance", [])))
+            return json.dumps({
+                "fixed_code": code,
+                "changes_made": [{"line": 0, "type": "fix", "description": str(i)} for i in all_issues[:5]],
+                "improvement_summary": f"Score: {score}/100."
+            })
+    except Exception as e:
+        logger.error(f"Local model call failed: {e}", exc_info=True)
+        return json.dumps({"error": str(e)})
+
+
+def _call_llm(system_prompt: str, user_prompt: str) -> str:
+    """Route LLM call to local model or OpenAI based on USE_LOCAL_MODEL env var."""
+    if _use_local_model():
+        return _call_local(system_prompt, user_prompt)
+    return _call_openai(system_prompt, user_prompt)
 
 
 def _parse_json_safe(text: str, fallback: Any = None) -> Any:
@@ -109,12 +238,14 @@ def run_security_agent(code: str, language: str) -> dict:
     """Run the Security Agent to detect vulnerabilities."""
     start = time.time()
     user_prompt = f"Language: {language}\n\nAnalyze this code for security vulnerabilities:\n```{language}\n{code}\n```"
-    result_text = _call_openai(SECURITY_SYSTEM_PROMPT, user_prompt)
+    result_text = _call_llm(SECURITY_SYSTEM_PROMPT, user_prompt)
+    if "error" in result_text:
+        logger.error(f"Security agent error: {result_text}")
     result = _parse_json_safe(result_text, {
         "vulnerabilities": [],
-        "security_score": 100,
-        "risk_level": "none",
-        "summary": "Unable to analyze"
+        "security_score": 0,
+        "risk_level": "unknown",
+        "summary": f"Analysis failed — {_parse_json_safe(result_text, {}).get('error', 'parse error')}"
     })
     result["_duration_ms"] = int((time.time() - start) * 1000)
     return result
@@ -160,12 +291,14 @@ def run_performance_agent(code: str, language: str) -> dict:
     """Run the Performance Agent to find bottlenecks."""
     start = time.time()
     user_prompt = f"Language: {language}\n\nAnalyze this code for performance issues:\n```{language}\n{code}\n```"
-    result_text = _call_openai(PERFORMANCE_SYSTEM_PROMPT, user_prompt)
+    result_text = _call_llm(PERFORMANCE_SYSTEM_PROMPT, user_prompt)
+    if "error" in result_text:
+        logger.error(f"Performance agent error: {result_text}")
     result = _parse_json_safe(result_text, {
         "issues": [],
-        "performance_score": 100,
-        "overall_complexity": "N/A",
-        "summary": "Unable to analyze"
+        "performance_score": 0,
+        "overall_complexity": "unknown",
+        "summary": f"Analysis failed — {_parse_json_safe(result_text, {}).get('error', 'parse error')}"
     })
     result["_duration_ms"] = int((time.time() - start) * 1000)
     return result
@@ -212,12 +345,14 @@ def run_style_agent(code: str, language: str) -> dict:
     """Run the Style Agent to enforce best practices."""
     start = time.time()
     user_prompt = f"Language: {language}\n\nAnalyze this code for style and maintainability:\n```{language}\n{code}\n```"
-    result_text = _call_openai(STYLE_SYSTEM_PROMPT, user_prompt)
+    result_text = _call_llm(STYLE_SYSTEM_PROMPT, user_prompt)
+    if "error" in result_text:
+        logger.error(f"Style agent error: {result_text}")
     result = _parse_json_safe(result_text, {
         "issues": [],
-        "style_score": 100,
+        "style_score": 0,
         "maintainability_index": "unknown",
-        "summary": "Unable to analyze"
+        "summary": f"Analysis failed — {_parse_json_safe(result_text, {}).get('error', 'parse error')}"
     })
     result["_duration_ms"] = int((time.time() - start) * 1000)
     return result
@@ -265,12 +400,14 @@ def run_bug_detector_agent(code: str, language: str) -> dict:
     """Run the Bug Detector Agent to find logic errors."""
     start = time.time()
     user_prompt = f"Language: {language}\n\nAnalyze this code for bugs and logic errors:\n```{language}\n{code}\n```"
-    result_text = _call_openai(BUG_DETECTOR_SYSTEM_PROMPT, user_prompt)
+    result_text = _call_llm(BUG_DETECTOR_SYSTEM_PROMPT, user_prompt)
+    if "error" in result_text:
+        logger.error(f"Bug detector agent error: {result_text}")
     result = _parse_json_safe(result_text, {
         "bugs": [],
-        "reliability_score": 100,
+        "reliability_score": 0,
         "confidence": "unknown",
-        "summary": "Unable to analyze"
+        "summary": f"Analysis failed — {_parse_json_safe(result_text, {}).get('error', 'parse error')}"
     })
     result["_duration_ms"] = int((time.time() - start) * 1000)
     return result
@@ -322,7 +459,7 @@ Issues found by other agents:
 
 Generate the fixed version of this code addressing ALL issues above."""
 
-    result_text = _call_openai(AUTOFIX_SYSTEM_PROMPT, user_prompt)
+    result_text = _call_llm(AUTOFIX_SYSTEM_PROMPT, user_prompt)
     result = _parse_json_safe(result_text, {
         "fixed_code": code,
         "changes_made": [],

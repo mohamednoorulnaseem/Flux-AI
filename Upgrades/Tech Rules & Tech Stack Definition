@@ -1,0 +1,321 @@
+# Flux AI – Tech Rules & Tech Stack Definition
+
+## 1. Purpose
+
+This document defines the approved technologies, frameworks, and engineering standards for building Flux AI.
+The goal is to ensure consistency, performance, maintainability, and production readiness.
+
+---
+
+## 2. Core Principles
+
+- Local-first AI execution
+- Memory-efficient model training and inference
+- Modular architecture
+- Production-oriented design
+- Open-source and extensible stack
+
+---
+
+## 3. AI / Machine Learning Stack
+
+### 3.1 Base Model
+
+Approved Models:
+
+- DeepSeek-Coder 6.7B (Primary)
+- CodeLlama 7B
+- StarCoder2 (Optional)
+
+Restrictions:
+
+- Model size must be ≤ 7B for local deployment
+- No API-only models (OpenAI, Claude) for core functionality
+
+---
+
+### 3.2 Training Framework
+
+Required:
+
+- PyTorch
+- HuggingFace Transformers
+- PEFT (LoRA / QLoRA)
+- BitsAndBytes (4-bit quantization)
+
+Training Rules:
+
+- Use QLoRA only (full fine-tuning not allowed)
+- Quantization: 4-bit
+- Batch size: 1–2
+- Gradient accumulation required
+
+---
+
+### 3.3 Dataset Standards
+
+Format:
+
+- JSONL
+
+Structure:
+
+```
+instruction
+input
+output
+```
+
+Rules:
+
+- Minimum: 1,000 samples
+- Maximum input length: 2,048 tokens
+- Manual validation required for quality
+
+---
+
+## 4. Backend Stack
+
+Framework:
+
+- FastAPI
+
+Responsibilities:
+
+- API routing
+- Model inference
+- Input validation
+- Response formatting
+
+Rules:
+
+- All AI logic must be inside service layer
+- No model loading inside route handlers
+- Model must be loaded once at startup
+
+---
+
+## 5. Frontend Stack
+
+Primary:
+
+- Streamlit (Phase 1)
+
+Optional (Phase 2):
+
+- React + Tailwind
+
+Features:
+
+- Code input/upload
+- Display structured review
+- Show quality score
+
+---
+
+## 6. RAG Stack (Phase 2)
+
+Embedding Models:
+
+- Sentence Transformers
+
+Vector Database:
+
+- FAISS (local)
+
+Rules:
+
+- Chunk size: 300–800 tokens
+- Use semantic search only
+- No external vector DB in Phase 1
+
+---
+
+## 7. Infrastructure Requirements
+
+### Hardware Target
+
+- GPU: RTX 4060 (8GB VRAM)
+- RAM: ≥ 16GB
+- Storage: ≥ 50GB free
+
+### Software
+
+- Python 3.10+
+- CUDA 12.x
+- PyTorch with GPU support
+
+---
+
+## 8. Performance Requirements
+
+Inference:
+
+- Response time: < 5 seconds
+
+Memory:
+
+- VRAM usage ≤ 7.5GB
+
+Model:
+
+- Load in 4-bit only
+
+Optimization:
+
+- Use device_map="auto"
+- Enable torch.compile (optional)
+
+---
+
+## 9. API Standards
+
+Endpoint:
+POST /review
+
+Input:
+
+```
+{
+  "code": "...",
+  "language": "python"
+}
+```
+
+Output:
+
+```
+{
+  "bugs": "...",
+  "improvements": "...",
+  "performance": "...",
+  "security": "...",
+  "score": 8
+}
+```
+
+Rules:
+
+- JSON only
+- Structured output mandatory
+- Error handling required
+
+---
+
+## 10. Project Structure Rules
+
+```
+flux-ai/
+│
+├── backend/
+├── frontend/
+├── training/
+├── models/
+├── data/
+└── docs/
+```
+
+Rules:
+
+- No large model files in GitHub
+- Use .gitignore for model weights
+- Keep training and inference separated
+
+---
+
+## 11. Version Control Rules
+
+- Git required
+- Feature-based commits
+- Model versions tracked separately
+- Dataset versioning recommended
+
+---
+
+## 12. Security Rules
+
+- No external API calls for core inference
+- No code storage unless enabled
+- Input size validation required
+- Local execution preferred
+
+---
+
+## 13. Deployment Rules (Phase 2)
+
+Containerization:
+
+- Docker with GPU support
+
+Future Options:
+
+- Kubernetes
+- Cloud GPU deployment
+
+---
+
+## 14. Logging & Monitoring
+
+Required:
+
+- Request logs
+- Inference time tracking
+- Error logging
+
+Optional:
+
+- Model performance metrics
+- Usage analytics
+
+---
+
+## 15. Future Expansion Compatibility
+
+System must support:
+
+- Multi-language models
+- GitHub integration
+- VS Code extension
+- Agent workflows
+
+---
+
+## 16. Approved Libraries Summary
+
+AI:
+
+- torch
+- transformers
+- peft
+- bitsandbytes
+- datasets
+
+Backend:
+
+- fastapi
+- uvicorn
+
+Frontend:
+
+- streamlit
+
+RAG:
+
+- faiss
+- sentence-transformers
+
+Utilities:
+
+- pydantic
+- numpy
+- pandas
+
+---
+
+## 17. Non-Approved Practices
+
+- Full model fine-tuning
+- API-only AI solutions
+- Models > 7B locally
+- Hardcoding prompts inside routes
+- Loading model per request

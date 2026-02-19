@@ -1,0 +1,322 @@
+# Flux AI – System Design Document
+
+## 1. Introduction
+
+Flux AI is a domain-specific AI system designed to perform automated code review using a fine-tuned large language model (LLM). The system provides structured feedback including bug detection, performance optimization, security analysis, and code quality scoring.
+
+This document describes the technical architecture, components, data flow, and implementation design.
+
+---
+
+## 2. Design Goals
+
+### Primary Goals
+
+* Domain-specific code review using fine-tuned LLM
+* Efficient local deployment (RTX 4060 – 8GB VRAM)
+* Low-latency inference (< 5 seconds)
+* Scalable modular architecture
+
+### Constraints
+
+* Limited GPU memory
+* Local execution environment
+* Memory-efficient training and inference (QLoRA, 4-bit)
+
+---
+
+## 3. High-Level Architecture
+
+User
+→ Frontend (Streamlit/Web UI)
+→ FastAPI Backend
+→ LLM Service Layer
+→ Fine-Tuned Model (QLoRA Adapter)
+→ Response Formatter
+→ User
+
+Optional (Phase 2)
+→ Vector Database (FAISS) for project context (RAG)
+
+---
+
+## 4. System Components
+
+### 4.1 Frontend Layer
+
+**Technology**: Streamlit / React
+
+Functions:
+
+* Paste or upload code
+* Select programming language
+* Display structured review output
+* Show code quality score
+
+---
+
+### 4.2 API Layer (FastAPI)
+
+Endpoints:
+
+POST `/review`
+
+Request:
+
+```
+{
+  "code": "...",
+  "language": "python"
+}
+```
+
+Response:
+
+```
+{
+  "bugs": "...",
+  "improvements": "...",
+  "performance": "...",
+  "security": "...",
+  "score": 8
+}
+```
+
+Responsibilities:
+
+* Input validation
+* Request routing
+* Model invocation
+* Response formatting
+
+---
+
+### 4.3 LLM Service Layer
+
+Functions:
+
+* Load base model in 4-bit
+* Load LoRA adapter
+* Tokenize input
+* Generate response
+* Post-process output
+
+Libraries:
+
+* HuggingFace Transformers
+* PEFT
+* BitsAndBytes
+
+---
+
+### 4.4 Model Layer
+
+**Base Model**
+
+* DeepSeek-Coder 6.7B or CodeLlama 7B
+
+**Fine-Tuning Method**
+
+* QLoRA
+* 4-bit quantization
+
+**Training Configuration**
+
+* Batch size: 1
+* Gradient accumulation: 8
+* Epochs: 3
+
+Output:
+LoRA adapter weights (~100–500MB)
+
+---
+
+## 5. Training Pipeline
+
+### 5.1 Dataset Format
+
+JSONL structure:
+
+```
+{
+  "instruction": "Review the following Python code",
+  "input": "<code>",
+  "output": "<structured review>"
+}
+```
+
+Dataset size target:
+
+* Phase 1: 1,000 samples
+* Phase 2: 3,000–5,000 samples
+
+---
+
+### 5.2 Training Flow
+
+Dataset
+→ Tokenization
+→ Load base model (4-bit)
+→ Apply LoRA adapters
+→ Train using HuggingFace Trainer
+→ Save adapter weights
+
+---
+
+## 6. Inference Flow
+
+User Input
+→ API receives code
+→ Prompt formatting
+→ Tokenization
+→ Model generation
+→ Output parsing
+→ Structured JSON response
+
+Prompt Template:
+
+```
+Review the following code and provide:
+1. Bugs
+2. Improvements
+3. Performance issues
+4. Security risks
+5. Code quality score (1-10)
+
+Code:
+<user_code>
+```
+
+---
+
+## 7. Optional Phase 2 – RAG Integration
+
+### Components
+
+* File uploader
+* Code chunking
+* Embedding model
+* FAISS vector database
+
+Flow:
+Project files
+→ Chunking
+→ Embeddings
+→ FAISS
+→ Retrieve context
+→ Append to prompt
+
+Benefit:
+
+* Context-aware code review
+* Enterprise-level capability
+
+---
+
+## 8. Performance Optimization
+
+* 4-bit quantization
+* Max token limit control
+* Gradient checkpointing (training)
+* Model caching (inference)
+* GPU memory monitoring
+
+Expected Performance:
+
+* VRAM usage: 6–7GB
+* Response time: 2–5 seconds
+
+---
+
+## 9. Folder Structure
+
+```
+flux-ai/
+│
+├── backend/
+│   ├── main.py
+│   ├── api/
+│   └── services/
+│       ├── llm_service.py
+│       └── review_service.py
+│
+├── training/
+│   └── qlora_train.py
+│
+├── data/
+│   └── dataset.jsonl
+│
+├── models/
+│   └── lora_adapter/
+│
+├── frontend/
+│   └── app.py
+│
+└── README.md
+```
+
+---
+
+## 10. Evaluation Strategy
+
+### Metrics
+
+* Manual review quality scoring
+* Bug detection accuracy
+* Base vs fine-tuned comparison
+* Response latency
+
+Target:
+
+* Quality improvement > 20%
+* Average response time < 5s
+
+---
+
+## 11. Security & Privacy
+
+* Local model execution
+* No external API calls
+* No code storage unless explicitly enabled
+* Input size validation
+
+---
+
+## 12. Future Enhancements
+
+* Multi-language support
+* GitHub PR review bot
+* VS Code extension
+* Cloud deployment
+* Autonomous code fixing agent
+
+---
+
+## 13. Deployment Options
+
+Local:
+
+* Python environment
+* CUDA + PyTorch
+
+Containerized:
+
+* Docker
+* GPU runtime
+
+Future:
+
+* Kubernetes
+* Cloud GPU deployment
+
+---
+
+## 14. Conclusion
+
+Flux AI is designed as a production-oriented AI system demonstrating:
+
+* Domain-specific LLM fine-tuning
+* Efficient model optimization (QLoRA)
+* End-to-end ML system architecture
+* Scalable and modular deployment
+

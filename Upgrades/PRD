@@ -1,0 +1,247 @@
+# Product Requirement Document (PRD)
+
+## Product Name
+
+**Flux AI**
+
+## Product Type
+
+Fine-Tuned Domain LLM for Automated Code Review
+
+---
+
+## 1. Overview
+
+Flux AI is an AI-powered code intelligence platform that performs automated code review using a fine-tuned large language model. The system analyzes source code and provides structured feedback including bug detection, performance suggestions, security risks, and code quality improvements.
+
+The core objective is to assist developers by acting as an intelligent code reviewer that works locally, reduces review time, and improves code quality.
+
+---
+
+## 2. Problem Statement
+
+Developers face the following challenges:
+
+- Manual code reviews are time-consuming
+- Inconsistent coding standards across teams
+- Missed bugs and performance issues
+- Privacy concerns when sending code to external AI APIs
+- High cost of commercial AI tools
+
+There is a need for a **private, customizable, domain-specific AI reviewer**.
+
+---
+
+## 3. Goals & Objectives
+
+### Primary Goals
+
+- Build a domain-specific fine-tuned LLM for code review
+- Provide structured and actionable feedback
+- Enable local or private deployment
+
+### Success Metrics
+
+- Review accuracy improvement over base model
+- Response time < 5 seconds (local inference)
+- Ability to detect common bugs and style issues
+- Code quality scoring capability
+
+---
+
+## 4. Target Users
+
+- Software developers
+- Students learning programming
+- Startups and small teams
+- Organizations needing private AI code analysis
+
+---
+
+## 5. Key Features
+
+### 5.1 AI Code Review (Core Feature)
+
+Input: Source code
+Output:
+
+- Bugs / Errors
+- Code Improvements
+- Refactoring Suggestions
+- Performance Issues
+- Security Risks
+- Code Quality Score (1–10)
+
+---
+
+### 5.2 Fine-Tuned Domain Model
+
+- Base Model: DeepSeek-Coder / CodeLlama (7B)
+- Training Method: QLoRA (4-bit)
+- Dataset: Instruction-based code review examples (1k–5k)
+
+---
+
+### 5.3 API Service
+
+- FastAPI backend
+- Endpoint: `/review`
+- Returns structured JSON response
+
+---
+
+### 5.4 User Interface
+
+- Streamlit or Web UI
+- Paste or upload code
+- Display structured review results
+
+---
+
+### 5.5 Optional (Phase 2)
+
+- RAG for project context
+- Multi-language support
+- GitHub integration
+- Batch file review
+
+---
+
+## 6. Functional Requirements
+
+### FR-1: Code Input
+
+- Accept Python code (Phase 1)
+- Support file upload or text input
+
+### FR-2: Model Processing
+
+- Load fine-tuned LoRA adapter
+- Generate structured review output
+
+### FR-3: Response Format
+
+Example:
+
+```
+{
+  "bugs": "...",
+  "improvements": "...",
+  "performance": "...",
+  "security": "...",
+  "score": 8
+}
+```
+
+---
+
+## 7. Non-Functional Requirements
+
+- Runs on RTX 4060 (8GB VRAM)
+- Inference time under 5 seconds
+- Memory-efficient (4-bit quantization)
+- Local deployment capability
+- Secure (no external API required)
+
+---
+
+## 8. System Architecture
+
+User
+→ Frontend (Streamlit)
+→ FastAPI Backend
+→ Fine-Tuned LLM (QLoRA Adapter)
+→ Response
+
+Optional (Phase 2):
+→ Vector Database (FAISS) for RAG
+
+---
+
+## 9. Dataset Requirements
+
+Format: JSONL
+
+Fields:
+
+- instruction
+- input (code)
+- output (review)
+
+Target size:
+
+- Phase 1: 1,000 samples
+- Phase 2: 3,000–5,000 samples
+
+Sources:
+
+- GitHub commits
+- Linter outputs
+- Manual examples
+
+---
+
+## 10. Training Configuration
+
+- Model Size: 7B
+- Method: QLoRA
+- Quantization: 4-bit
+- Batch Size: 1
+- Gradient Accumulation: 8
+- Epochs: 3
+
+---
+
+## 11. Milestones
+
+Phase 1:
+
+- Dataset creation
+- QLoRA fine-tuning
+- Local inference
+
+Phase 2:
+
+- FastAPI integration
+- UI development
+
+Phase 3:
+
+- RAG support
+- Multi-language support
+- Performance evaluation
+
+---
+
+## 12. Risks & Mitigation
+
+Risk: Limited GPU memory
+Mitigation: Use QLoRA and small batch sizes
+
+Risk: Low training data quality
+Mitigation: Manual validation and curated dataset
+
+Risk: Slow inference
+Mitigation: Quantization and model optimization
+
+---
+
+## 13. Future Enhancements
+
+- GitHub Pull Request Review Bot
+- Team coding standard customization
+- Cloud deployment
+- Agent-based autonomous code fixing
+- IDE plugin (VS Code)
+
+---
+
+## 14. Product Positioning
+
+Flux AI is a **production-ready AI engineering system** that demonstrates:
+
+- LLM fine-tuning
+- Domain specialization
+- Model optimization
+- Backend deployment
+- End-to-end AI product development
